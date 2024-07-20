@@ -106,7 +106,7 @@ const Categories = () => {
                             placeholder="Search..."
                             className="focus:outline-none py-2 px-3 rounded-lg text-black"
                             value={searchQuery}
-                            onChange={handleSearchChange} // Update search query on change
+                            onChange={handleSearchChange} 
                         />
                     </div>
                     <div onClick={togglePopupCreate} className="text-white font-bold text-4xl p-1.5 cursor-pointer">
