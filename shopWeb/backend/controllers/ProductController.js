@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Image = require('../models/Image');
 const { generateUniqueSKU } = require('../helpers/controllerUtils');
 
 
@@ -38,27 +39,61 @@ const getProducts = async(req, res) => {
     };
 
 
-const CreateProduct = async (req, res) => {
-    const { category, title, description, brand, price, quantity } = req.body;
+    const CreateProduct = async (req, res) => {
+        const { category, title, description, brand, price, quantity } = req.body;
+        
+        try {
 
-    try {
-        const SKU = await generateUniqueSKU(title);
-        const CreatedProduct = await Product.create({ category, SKU, title, description, brand, price, quantity });
-        res.status(200).json({ message: "Product created successfully", CreatedProduct });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
+            if (!req.files) {
+                return res.status(400).json({ message: "Please upload at least one image" });
+            }
+    
+            const SKU = await generateUniqueSKU(title);
+    
+            const createdProduct = await Product.create({
+                category,
+                SKU,
+                title,
+                description,
+                brand,
+                price,
+                quantity
+            });
+    
+            const images = req.files.map(file => ({
+                url: file.path,
+                product: createdProduct._id
+            }));
+    
+            const savedImages = await Image.insertMany(images);
+    
+            createdProduct.images = savedImages.map(image => image._id);
+            await createdProduct.save();
+    
+            res.status(200).json({ message: "Product created successfully", createdProduct });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    };
+    
+    module.exports = CreateProduct;
+    
 
 const deleteProduct = async(req, res) => {
     const id = req.params.id;
     try {
         const DeletedProduct = await Product.findByIdAndDelete(id);
+
         if (!DeletedProduct) {
-            return res.status(404).json({ message: "Catgory not found" });
+            return res.status(404).json({ message: "Product not found" });
         }
-        res.status(200).json({ message: "Product deleted successfully", DeletedProduct });
+
+        const images = await Image.deleteMany({ product: id });
+
+        if(!images) {
+            return res.status(404).json({ message: "Images not found" });
+        }
+        res.status(200).json({ message: "Product deleted successfully", DeletedProduct, images });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -75,15 +110,30 @@ const updateProduct = async (req, res) => {
         price,
         quantity
     };
-
     try {
-        const UpdatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
-        if (!UpdatedProduct) {
+        if (!updatedProduct) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        res.status(200).json({ message: "Product updated successfully", UpdatedProduct });
+        if (req.files && req.files.length > 0) {
+           const deletedImages = await Image.deleteMany({ product: id });
+
+            const images = req.files.map(file => ({
+                url: file.path,
+                product: updatedProduct._id
+            }));
+
+           const savedImages = await Image.insertMany(images);
+           if(!savedImages) {
+               return res.status(404).json({ message: "Images not found" });
+           }
+
+            updatedProduct.images = savedImages.map(image => image._id);
+            await updatedProduct.save();
+        }
+        res.status(200).json({message: "Product updated successfully", updatedProduct});
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

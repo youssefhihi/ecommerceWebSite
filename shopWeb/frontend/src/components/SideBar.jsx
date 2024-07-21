@@ -22,7 +22,7 @@ const SideBar = () => {
 
     return (
         <>
-        <nav className={`fixed  transform z-30 flex bg-gray- p-2 items-center justify-between h-16 px-5 transition-width duration-300 top-0 ${sideBarOpened ? 'left-60 w-[calc(100%-225px)]' : ' left-[60px] w-[calc(100%-55px)]'}`}>
+        <nav className={`fixed bg-white transform z-30 flex bg-gray- p-2 items-center justify-between h-16 px-5 transition-width duration-300 top-0 ${sideBarOpened ? 'left-60 w-[calc(100%-225px)]' : ' left-[60px] w-[calc(100%-55px)]'}`}>
             <div className='flex space-x-2'>
                     <div onClick={toggleSideBar} className='text-2xl text-[#3cf23c] hover:bg-gray-100 p-3 rounded-full cursor-pointer'>
                         <IoMenu className='text-3xl' />
