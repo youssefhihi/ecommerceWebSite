@@ -21,7 +21,8 @@ const ProductSchema = new Schema({
     },
     brand: {
          type: String,
-         required: false
+         required: false,
+         default: "unknown"
      },
     price: {
         type: Number,

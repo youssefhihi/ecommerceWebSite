@@ -21,21 +21,28 @@ const getProducts = async(req, res) => {
         res.status(500).json({message: error.message});
     }
 }
-const getSingleProduct = async(req, res) => {
-    const { SKU } = req.params.SKU;
-    try{
-        const SingleProduct = await Product.findOne({ SKU:SKU });
-        res.status(200).json({message: "Product found",SingleProduct});
-    }catch(error){
-        res.status(500).json({message: error.message});
-    }
-}
+    const getSingleProduct = async (req, res) => {
+        const { SKU } = req.params;
+
+        try {
+            const SingleProduct = await Product.findOne({ SKU });
+
+            if (!SingleProduct) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+
+            res.status(200).json({ message: "Product found", SingleProduct });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    };
+
 
 const CreateProduct = async (req, res) => {
     const { category, title, description, brand, price, quantity } = req.body;
 
     try {
-        const SKU = await generateUniqueSKU();
+        const SKU = await generateUniqueSKU(title);
         const CreatedProduct = await Product.create({ category, SKU, title, description, brand, price, quantity });
         res.status(200).json({ message: "Product created successfully", CreatedProduct });
     } catch (error) {
