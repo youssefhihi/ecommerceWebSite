@@ -57,21 +57,29 @@ const deleteProduct = async(req, res) => {
     }
 }
 
-const updateProduct = async(req, res) => {
+const updateProduct = async (req, res) => {
     const id = req.params.id;
-    const updateData = req.body;
+    const { category, title, description, brand, price, quantity } = req.body;
+    const updateData = {
+        category,
+        title,
+        description,
+        brand,
+        price,
+        quantity
+    };
 
     try {
-        const Product = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+        const UpdatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
-        if (!Product) {
+        if (!UpdatedProduct) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        res.status(200).json({ message: "Product updated successfully", Product });
+        res.status(200).json({ message: "Product updated successfully", UpdatedProduct });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 
 module.exports = { getAvailableProducts, getProducts , getSingleProduct,CreateProduct, deleteProduct, updateProduct}
