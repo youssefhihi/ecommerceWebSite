@@ -5,20 +5,30 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import  BASE_URL  from '../../config';
 import axios from 'axios';
-import { Carousel } from 'react-responsive-carousel';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CreateProduct = () => {
-    const [files, setFiles] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         title: '',
         quantity: '',
         description: '',
         price: '',
         brand: '',
-        category: ''
+        category: '',
+        images: []
     });
 
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            Object.values(errors).forEach(errorMessage => {
+                toast.error(errorMessage);
+            });
+        }
+    }, [errors]);
+    
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -31,8 +41,8 @@ const CreateProduct = () => {
         fetchCategories();
     }, []);
 
-    const handleFileChange = (event) => {
-        setFiles(Array.from(event.target.files));
+    const handleFileChange = (e) => {
+        setFormData({ ...formData, images: e.target.files });
     };
 
     const handleInputChange = (event) => {
@@ -43,11 +53,34 @@ const CreateProduct = () => {
         }));
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        // Handle form submission logic here
-        console.log(formData);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return; 
+        const data = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (key === 'images') {
+                for (let i = 0; i < formData.images.length; i++) {
+                    data.append('images', formData.images[i]);
+                }
+            } else {
+                data.append(key, formData[key]);
+            }
+        });
+
+        try {
+             await axios.post(`${BASE_URL}/api/products/addProduct`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            toast.success('Product created successfully');
+            setFormData({ title: '', quantity: '', description: '', price: '', brand: '', category: '', images: [] });
+            setErrors({});
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || 'Error creating product';
+            console.error('Error creating product:', errorMessage);
+            toast.error(errorMessage);
+        }
     };
+    
     const handleDescriptionChange = (value) => {
         setFormData(prevData => ({
             ...prevData,
@@ -55,7 +88,21 @@ const CreateProduct = () => {
         }));
     };
     
-
+    const validateForm = () => {
+        let formErrors = {};
+        if (!formData.title) formErrors.title = 'Title is required';
+        if (formData.title.length < 3) formErrors.title = 'Title must be at least 3 characters long';
+        if (!formData.quantity || isNaN(formData.quantity) || formData.quantity <= 0) formErrors.quantity = 'Quantity must be a positive number';
+        if (!formData.price || isNaN(formData.price) || formData.price <= 0) formErrors.price = 'Price must be a positive number';
+        if (!formData.description)  formErrors.description = 'Description is required';
+        if (formData.description.length < 10)  formErrors.description = 'Description must be at least 10 characters long';
+        if (formData.images.length === 0) formErrors.images = 'Please upload at least one image';
+    
+        setErrors(formErrors);
+        return Object.keys(formErrors).length === 0; 
+    };
+    
+  
     return (
         <div className="p-4 w-full ">
             <form onSubmit={handleSubmit} className="bg-white drop-shadow-xl rounded-xl p-6">
@@ -90,7 +137,6 @@ const CreateProduct = () => {
                                         placeholder=" " 
                                         value={formData.title}
                                         onChange={handleInputChange}
-                                        required 
                                     />
                                     <label 
                                         htmlFor="title" 
@@ -108,7 +154,6 @@ const CreateProduct = () => {
                                         placeholder=" " 
                                         value={formData.brand}
                                         onChange={handleInputChange}
-                                        required 
                                     />
                                     <label 
                                         htmlFor="brand" 
@@ -129,7 +174,6 @@ const CreateProduct = () => {
                                     placeholder=" " 
                                     value={formData.quantity}
                                     onChange={handleInputChange}
-                                    required 
                                 />
                                 <label 
                                     htmlFor="quantity" 
@@ -147,7 +191,6 @@ const CreateProduct = () => {
                                     placeholder=" " 
                                     value={formData.price}
                                     onChange={handleInputChange}
-                                    required 
                                 />
                                 <label 
                                     htmlFor="price" 
@@ -164,7 +207,6 @@ const CreateProduct = () => {
                                     className="block py-2.5 px-0 w-full text-md bg-transparent border-0 border-b-2 border-gray-800 appearance-none dark:border-black dark:focus:border-gray-500 focus:outline-none focus:ring-0 focus:border-gray-600 peer" 
                                     value={formData.category}
                                     onChange={handleInputChange}
-                                    required
                                 >
                                     <option value="">Select Category</option> 
                                     {categories.map((category) => (
@@ -210,6 +252,8 @@ const CreateProduct = () => {
 
                 </div>
             </form>
+            <ToastContainer /> 
+
         </div>
     );
 };

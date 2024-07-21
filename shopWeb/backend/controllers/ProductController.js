@@ -76,7 +76,6 @@ const getProducts = async(req, res) => {
         }
     };
     
-    module.exports = CreateProduct;
     
 
 const deleteProduct = async(req, res) => {
