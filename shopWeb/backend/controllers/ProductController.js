@@ -16,7 +16,7 @@ const getAvailableProducts = async(req, res) => {
 
 const getProducts = async(req, res) => {
     try{
-        const Products = await Product.find();
+        const Products = await Product.find().populate('category').populate('images'); 
         res.status(200).json(Products);
     }catch(error){
         res.status(500).json({message: error.message});
@@ -61,9 +61,10 @@ const getProducts = async(req, res) => {
             });
     
             const images = req.files.map(file => ({
-                url: file.path,
+                url: file.filename,
                 product: createdProduct._id
             }));
+
     
             const savedImages = await Image.insertMany(images);
     

@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -12,6 +13,10 @@ mongoose.connect(process.env.MONG_URI)
 .catch((err) => {
     console.log("Error connecting to MongoDB:", err);
 });
+
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+
 
 const mainRouter = require("./Routes/router");
 const bodyParser = require('body-parser');
