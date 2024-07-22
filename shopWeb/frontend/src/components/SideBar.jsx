@@ -11,6 +11,11 @@ import { IoIosArrowDown } from "react-icons/io";
 const SideBar = () => {
     const [profilePopup, setProfilePopup] = useState(false);
     const [sideBarOpened, setSideBarOpened] = useState(true); 
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
 
     const toggleProfilePopup = () => {
         setProfilePopup(!profilePopup);
@@ -112,13 +117,41 @@ const SideBar = () => {
                             </Link>
                         </li>
                         <li>
-                            <Link
-                                to="/products"
-                                className="w-full flex items-center p-2 text-lg text-gray-900 hover:text-[#3cf23c] hover:bg-white hover:border-l-4 border-[#3cf23c] rounded-r-xl ease-in-out duration-300"
+                            <button
+                                onClick={toggleDropdown}
+                                className="w-full flex items-center justify-between p-2 text-lg text-gray-900 hover:text-[#3cf23c] hover:bg-white hover:border-l-4 border-[#3cf23c] rounded-r-xl ease-in-out duration-300"
                             >
+                                <div className='flex items-center'>
                                 <AiOutlineProduct className="text-2xl" />
                                 {sideBarOpened && <span className="ml-3 whitespace-nowrap">Products</span>}
-                            </Link>
+                                </div>
+                            <div
+                                
+                                className={`cursor-pointer transform justify-end transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                            >
+                                <IoIosArrowDown />
+                            </div>
+                            </button>
+                            {isDropdownOpen && (
+                                <ul className="ml-8 mt-2 space-y-2">
+                                    <li>
+                                        <Link
+                                            to="/products"
+                                            className="w-full flex items-center p-2 text-md text-gray-900 hover:text-[#3cf23c] hover:bg-white hover:border-l-4 border-[#3cf23c] rounded-r-xl ease-in-out duration-300"
+                                        >
+                                            Manage Products
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link
+                                            to="/products/Create"
+                                            className="w-full  flex items-center p-2 text-md text-gray-900 hover:text-[#3cf23c] hover:bg-white hover:border-l-4 border-[#3cf23c] rounded-r-xl ease-in-out duration-300"
+                                        >
+                                            Add Product
+                                        </Link>
+                                    </li>
+                                </ul>
+                            )}
                         </li>
                         <li>
                             <Link

@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
-import SideBar from '../components/SideBar';
-import '../Tailwind.css';
-import CreateProduct from '../components/products/createProduct';
+import SideBar from '../../components/SideBar';
+import '../../Tailwind.css';
 import { IoIosAddCircle } from "react-icons/io";
-import GettingProducts from '../components/products/gettingProducts';
+import GettingProducts from '../../components/products/gettingProducts';
+import { Link } from 'react-router-dom';
 
 const Products = () => {
-    const [createFormOpened, setCreateFormOpened] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const togglePopupCreate = () => {
-        setCreateFormOpened(!createFormOpened);
-    };
+  
 
     const handleSearch = (event) => {
         setSearchQuery(event.target.value);
@@ -31,15 +28,17 @@ const Products = () => {
                             className="focus:outline-none py-2 px-3 rounded-lg text-black"
                         />
                     </div>
-                    <div onClick={togglePopupCreate} className="text-white font-bold text-4xl p-1.5 cursor-pointer">
-                        <IoIosAddCircle />
+                    <div className='group relative'>
+                        <div className="text-white font-bold text-4xl p-1.5 cursor-pointer">
+                            <Link to="/product/create"  >
+                                <IoIosAddCircle />
+                            </Link>
+                        </div>
+                        <span className="absolute w-28 text-center -top-10 left-[50%] -translate-x-[70%] z-[30] origin-left scale-0 px-2 rounded-l-3xl rounded-tr-3xl border border-gray-300 bg-white py-2 text-sm font-bold shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
+                            Add Product
+                        </span>
                     </div>
-                </div>
-                {createFormOpened && (
-                    <div className={` ${createFormOpened ? '' : ''} transition-width duration-300`}>
-                        <CreateProduct />
-                    </div>
-                )}
+                </div>             
                 <GettingProducts searchQuery={searchQuery} />
             </main>
         </div>

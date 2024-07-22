@@ -44,9 +44,10 @@ const getProducts = async(req, res) => {
         
         try {
 
-            if (!req.files) {
-                return res.status(400).json({ message: "Please upload at least one image" });
+            if(!category || !title || !description || !brand || !price || !quantity || !req.files) {
+                return res.status(400).json({ message: "All fields are required" });
             }
+           
     
             const SKU = await generateUniqueSKU(title);
     
