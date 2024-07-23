@@ -9,24 +9,39 @@ import '../Tailwind.css';
 import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css'; 
 
+
+const debounce = (func, delay) => {
+    let debounceTimer;
+    return function(...args) {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+  
 const Categories = () => {
     const [categories, setCategories] = useState([]);
     const [popupCreate, setPopupCreate] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
-    const [searchQuery, setSearchQuery] = useState(''); 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [search, setSearch] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get(`${BASE_URL}/api/categories`);
-                setCategories(response.data);
+                const response = await axios.get(`${BASE_URL}/api/categories?page=${page}&limit=2&search=${search}`);
+                setCategories(response.data.categories);
+                setTotalPages(response.data.pages);
             } catch (error) {
                 toast.error('Error fetching categories');
                 console.error('Error fetching categories:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchCategories();
-    }, []);
+    }, [page, search]);
 
     const updateCategory = async (id, newName) => {
         if (newName.trim() === '') {
@@ -91,10 +106,21 @@ const Categories = () => {
         setPopupCreate(!popupCreate);
     };
 
-    const filteredCategories = categories.filter((category) =>
-        category.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
+        setPage(1); 
+      };
 
+      const handleNextPage = () => {
+        if (page < totalPages) {
+          setPage(prevPage => prevPage + 1);
+        }
+      };
+      const handlePrevPage = () => {
+        if (page > 1) {
+          setPage(prevPage => prevPage - 1);
+        }
+      };
     return (
         <div className="flex">
             <SideBar />
@@ -105,14 +131,15 @@ const Categories = () => {
                             type="search"
                             placeholder="Search..."
                             className="focus:outline-none py-2 px-3 rounded-lg text-black"
-                            value={searchQuery}
-                            onChange={handleSearchChange} 
+                            value={search}
+                            onChange={handleSearch}
                         />
                     </div>
                     <div onClick={togglePopupCreate} className="text-white font-bold text-4xl p-1.5 cursor-pointer">
                         <IoIosAddCircle />
                     </div>
                 </div>
+
                 {popupCreate && (
                     <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
                         <div className="bg-white p-4 rounded-lg w-1/3">
@@ -151,6 +178,9 @@ const Categories = () => {
                         </div>
                     </div>
                 )}
+                {loading ? (
+        <p>Loading...</p>
+      ) : (
                 <table className="min-w-full bg-white border border-gray-200">
                     <thead className="bg-gray-100 border-b">
                         <tr>
@@ -161,7 +191,7 @@ const Categories = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredCategories && filteredCategories.map((category, index) => (
+                        {categories && categories.map((category, index) => (
                             <tr key={category._id} className={index % 2 === 0 ? "bg-gray-200 text-center border-b" : "bg-white text-center border-b"}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
                                 <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
@@ -188,6 +218,43 @@ const Categories = () => {
                         ))}
                     </tbody>
                 </table>
+            )}
+
+                {search ? null : (  
+                <nav aria-label="Page navigation">
+                    <ul class="inline-flex">
+                        <li>
+                            <button
+                                onClick={handlePrevPage}
+                                disabled={page === 1}
+                                className="h-10 px-5 text-indigo-600 transition-colors duration-150 bg-white rounded-l-lg focus:shadow-outline hover:bg-indigo-100"
+                            >
+                                Prev
+                            </button>                        
+                        </li>
+                        {Array.from({ length: totalPages }, (_, i) => (
+                        <li>
+                            <button
+                                key={i}
+                                onClick={() => setPage(i + 1)}
+                                disabled={i + 1 === page}
+                                class={`h-10 px-5 text-white transition-colors duration-150 ${i + 1 === page ? 'bg-indigo-600' : 'bg-gray-200'} focus:shadow-outline`}>
+                                {i + 1}
+                            </button>
+                        </li>
+                        ))}
+                        <li>
+                            <button
+                                onClick={handleNextPage}
+                                disabled={page === totalPages}
+                                className="h-10 px-5 text-indigo-600 transition-colors duration-150 bg-white rounded-r-lg focus:shadow-outline hover:bg-indigo-100"
+                            >
+                                Next
+                            </button>
+                        </li>                    
+                    </ul>
+                </nav>
+            )}
             </main>
             <ToastContainer /> 
         </div>
