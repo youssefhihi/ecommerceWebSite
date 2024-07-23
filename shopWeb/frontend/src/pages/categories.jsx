@@ -36,12 +36,14 @@ const Categories = () => {
             } catch (error) {
                 toast.error('Error fetching categories');
                 console.error('Error fetching categories:', error);
-            } finally {
-                setLoading(false);
             }
         };
         fetchCategories();
     }, [page, search]);
+
+    useEffect(() => {
+		if(categories.length > 0) setLoading(false);
+	}, [categories]);
 
     const updateCategory = async (id, newName) => {
         if (newName.trim() === '') {
@@ -98,9 +100,6 @@ const Categories = () => {
         setNewCategoryName(event.target.value);
     };
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
 
     const togglePopupCreate = () => {
         setPopupCreate(!popupCreate);
@@ -179,8 +178,26 @@ const Categories = () => {
                     </div>
                 )}
                 {loading ? (
-        <p>Loading...</p>
-      ) : (
+                    <div aria-label="Loading..." role="status" class="flex items-center px-80 space-x-2">
+                        <svg class="h-20 w-20 animate-spin stroke-gray-500" viewBox="0 0 256 256">
+                            <line x1="128" y1="32" x2="128" y2="64" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+                            <line x1="195.9" y1="60.1" x2="173.3" y2="82.7" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="24"></line>
+                            <line x1="224" y1="128" x2="192" y2="128" stroke-linecap="round" stroke-linejoin="round" stroke-width="24">
+                            </line>
+                            <line x1="195.9" y1="195.9" x2="173.3" y2="173.3" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="24"></line>
+                            <line x1="128" y1="224" x2="128" y2="192" stroke-linecap="round" stroke-linejoin="round" stroke-width="24">
+                            </line>
+                            <line x1="60.1" y1="195.9" x2="82.7" y2="173.3" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="24"></line>
+                            <line x1="32" y1="128" x2="64" y2="128" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"></line>
+                            <line x1="60.1" y1="60.1" x2="82.7" y2="82.7" stroke-linecap="round" stroke-linejoin="round" stroke-width="24">
+                            </line>
+                        </svg>
+                        <span class="text-4xl font-medium text-gray-500">Loading...</span>
+                    </div>
+                ) : (
                 <table className="min-w-full bg-white border border-gray-200">
                     <thead className="bg-gray-100 border-b">
                         <tr>
@@ -218,16 +235,16 @@ const Categories = () => {
                         ))}
                     </tbody>
                 </table>
-            )}
+                )}
 
-                {search ? null : (  
+                {search || categories ? null : (  
                 <nav aria-label="Page navigation">
-                    <ul class="inline-flex">
+                    <ul class="flex items-center justify-center mt-10">
                         <li>
                             <button
                                 onClick={handlePrevPage}
                                 disabled={page === 1}
-                                className="h-10 px-5 text-indigo-600 transition-colors duration-150 bg-white rounded-l-lg focus:shadow-outline hover:bg-indigo-100"
+                                className={`${page === 1? 'cursor-not-allowed' : 'cursor-pointer'} h-10 px-5 hover:text-white transition-colors duration-150 hover:bg-[#3cf23c] rounded-l-lg focus:shadow-outline bg-white text-[#3cf23c] border-2 border-[#3cf23c]`}	
                             >
                                 Prev
                             </button>                        
@@ -238,7 +255,7 @@ const Categories = () => {
                                 key={i}
                                 onClick={() => setPage(i + 1)}
                                 disabled={i + 1 === page}
-                                class={`h-10 px-5 text-white transition-colors duration-150 ${i + 1 === page ? 'bg-indigo-600' : 'bg-gray-200'} focus:shadow-outline`}>
+                                class={`h-10 px-5 text-white transition-colors duration-150 ${i + 1 === page ? 'bg-[#3cf23c]' : 'bg-gray-200'} focus:shadow-outline`}>
                                 {i + 1}
                             </button>
                         </li>
@@ -247,7 +264,7 @@ const Categories = () => {
                             <button
                                 onClick={handleNextPage}
                                 disabled={page === totalPages}
-                                className="h-10 px-5 text-indigo-600 transition-colors duration-150 bg-white rounded-r-lg focus:shadow-outline hover:bg-indigo-100"
+                                className={`${page === totalPages ? 'cursor-not-allowed' : 'cursor-pointer'} h-10 px-5 hover:text-white transition-colors duration-150 hover:bg-[#3cf23c] rounded-r-lg focus:shadow-outline bg-white text-[#3cf23c] border-2 border-[#3cf23c]`}
                             >
                                 Next
                             </button>

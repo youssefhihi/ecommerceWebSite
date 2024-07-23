@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 const Image = require('../models/Image');
 const { generateUniqueSKU } = require('../helpers/controllerUtils');
 
@@ -14,12 +15,42 @@ const getAvailableProducts = async(req, res) => {
     }
 }
 
-const getProducts = async(req, res) => {
-    try{
-        const Products = await Product.find().populate('category').populate('images'); 
-        res.status(200).json(Products);
-    }catch(error){
-        res.status(500).json({message: error.message});
+const getProducts = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 3;
+    const searchQuery = req.query.search || '';
+    const searchRegex = new RegExp(searchQuery, 'i'); // Case-insensitive regex
+
+    try {
+
+        const matchingCategories = searchQuery
+        ? await Category.find({ name: searchRegex }).select('_id')
+        : [];
+        const categoryIds = matchingCategories.map(cat => cat._id);
+
+        const query = searchQuery
+            ? {
+                $or: [
+                    { name: searchRegex },
+                    { brand: searchRegex },
+                    { category: { $in: categoryIds } }, 
+                    { SKU: searchRegex },
+                ]
+            }
+            : {};
+
+        const total = await Product.countDocuments(query);
+        const Products = searchQuery
+        ? await Product.find(query).populate('images').populate('category').exec() 
+        : await Product.find(query).limit(limit).skip((page - 1) * limit).populate('images').populate('category').exec();
+        res.status(200).json({
+            Products,  
+            total,
+            page,
+            pages: searchQuery ? 1 : Math.ceil(total / limit) 
+            });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 }
     const getSingleProduct = async (req, res) => {
