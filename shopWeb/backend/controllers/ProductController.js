@@ -26,7 +26,7 @@ const getProducts = async(req, res) => {
         const { SKU } = req.params;
 
         try {
-            const SingleProduct = await Product.findOne({ SKU });
+            const SingleProduct = await Product.findOne({ SKU }).populate('images');
 
             if (!SingleProduct) {
                 return res.status(404).json({ message: "Product not found" });

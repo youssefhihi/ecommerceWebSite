@@ -3,16 +3,17 @@ import axios from 'axios';
 import BASE_URL from '../../config';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaSadCry } from "react-icons/fa";
 import { ImMenu } from "react-icons/im";
 import { TfiLayoutGrid2Alt } from "react-icons/tfi";
 import {Link } from 'react-router-dom';
 
 
+
 const GettingProducts = ({ searchQuery }) => {
     const [products, setProducts] = useState([]);
-	const [isGridView, setIsGridView] = useState(true);
-	const [isGridView2, setIsGridView2] = useState(false);
+	const [isGridView, setIsGridView] = useState(false);
+	const [isGridView2, setIsGridView2] = useState(true);
 	const [Loading, setLoading] = useState(true);
 
 	const toggleGridView2 = () => {
@@ -63,6 +64,8 @@ const GettingProducts = ({ searchQuery }) => {
 
 		<div className='hidden md:block md:flex md:justify-end md:gap-5'>
 			<div className=' flex space-x-3 p-1 items-center justify-center rounded-md border border-black'>
+				
+				<div className='h-8 w-0.5 bg-black'></div>
 				<div className={`cursor-pointer ${isGridView ? ' text-[#3cf23c]' : 'text-black'}`} onClick={toggleGridView}>
 					<ImMenu className='text-4xl' />
 				</div>

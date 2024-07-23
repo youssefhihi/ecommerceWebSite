@@ -1,0 +1,25 @@
+.carousel .thumb.selected, .carousel .thumb:hover {
+    border: 2px solid #3cf23c; /* Customize the border color for selected and hovered thumbnails */
+}
+
+/* Add this to your CSS file */
+.desc ul {
+    list-style-type: disc; /* Show bullet points */
+    padding-left: 1.5rem;  /* Add padding to align with bullets */
+  }
+
+/* Custom CSS for ordered lists */
+.desc ol {
+    list-style-type: decimal; /* Show numbers for ordered lists */
+    padding-left: 1.5rem;     /* Add padding to align with numbers */
+  }
+  
+
+  /* Custom CSS to make thumbnails small */
+
+  
+  .custom-carousel .thumbs-wrapper .thumb img {
+    width: 100%; /* Make image fill the thumbnail */
+    height: auto; /* Maintain aspect ratio */
+}
+  
