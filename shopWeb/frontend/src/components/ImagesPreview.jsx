@@ -7,7 +7,7 @@ const ImagesPreview = ({ images, onClose, onRemove }) => {
     }
     return (
 
-        <div className=" border border-[#3cf23c] fixed top-100 right-2 z-50 t bg-white rounded-lg overflow-hidden transform transition-all sm:max-w-md sm:w-full p-2 ease-in-out duration-500">
+        <div className=" border border-[#3cf23c] fixed top-100 right-2 z-50 t bg-white rounded-lg overflow-hidden transform transition-all sm:max-w-md sm:w-full p-2 ease-in-out duration-500 overflow-y-scroll h-1/2">
             <div className='w-full'>           
                 <button className="text-gray-500 hover:text-gray-800 float-right pr-4 text-3xl" onClick={onClose}>
                     &times;
